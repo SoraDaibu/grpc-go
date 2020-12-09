@@ -1,0 +1,5 @@
+/.aws-sam
+.env.json
+.bash*
+generate.sh
+*.log
