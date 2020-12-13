@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"io"
 	"log"
 	"net"
 
@@ -26,7 +27,7 @@ func (*server) Calculate(ctx context.Context, req *calculatorpb.CalculateRequest
 }
 
 func (*server) DecomposeManyTimes(req *calculatorpb.DecomposeRequest, stream calculatorpb.CalculatorService_DecomposeManyTimesServer) error {
-	fmt.Printf("DecomposeManyTimes fuc was incoked with %v\n", req)
+	fmt.Printf("DecomposeManyTimes func was incoked with %v\n", req)
 	N := req.GetNumber()
 	var k int32 = 2
 	for N > 1 {
@@ -44,6 +45,30 @@ func (*server) DecomposeManyTimes(req *calculatorpb.DecomposeRequest, stream cal
 		}
 	}
 	return nil
+}
+
+func (*server) ComputeAverage(stream calculatorpb.CalculatorService_ComputeAverageServer) error {
+	fmt.Printf("ComputeAverage func was incoked with a client streaming req\n")
+	//the returned value of req.GetNumber() is int32, therefore setting avenum int32 for now and setting float64 later inside of if(err == io.EOF)
+	var ave_num int32
+	var count float64
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			// we have finished reading the client stream
+
+			return stream.SendAndClose(&calculatorpb.ComputeAverageResponse{
+				AveNum: float64(ave_num) / count,
+			})
+		}
+		if err != nil {
+			log.Fatal("Error while reading client stream: %v", err)
+		}
+
+		// Normal Process starts here
+		count++
+		ave_num += req.GetNumber()
+	}
 }
 
 func main() {
