@@ -121,7 +121,7 @@ func doClientStreaming(c greetpb.GreetServiceClient) {
 func doBiDiStreaming(c greetpb.GreetServiceClient) {
 	fmt.Println("Starting to do a BiDi Streaming RPC...")
 
-	// we create a stream by incoking the client
+	// we create a stream by invoking the client
 	stream, err := c.GreetEveryone(context.Background())
 	if err != nil {
 		log.Fatalf("Errror while creating stream: %v", err)
@@ -157,7 +157,7 @@ func doBiDiStreaming(c greetpb.GreetServiceClient) {
 	}
 	waitc := make(chan struct{})
 
-	// we send a bunch of messages to the client (go routine)
+	// we send a bunch of messages to the server (go routine)
 	go func() {
 		// function to send a bunch of messages
 		for _, req := range requests {
@@ -166,7 +166,7 @@ func doBiDiStreaming(c greetpb.GreetServiceClient) {
 			time.Sleep(500 * time.Millisecond)
 		}
 	}()
-	// we receive a bunch of messages from the client (go routine)
+	// we receive a bunch of messages from the server (go routine)
 	go func() {
 		// function to receive a bunch of messages
 		for {
