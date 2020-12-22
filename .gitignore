@@ -1,5 +1,7 @@
 /.aws-sam
 .env.json
 .bash*
-generate.sh
+*.sh
 *.log
+ssl/*
+ssl_madebyme/*
