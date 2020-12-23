@@ -48,7 +48,7 @@ func (*server) DecomposeManyTimes(req *calculatorpb.DecomposeRequest, stream cal
 }
 
 func (*server) ComputeAverage(stream calculatorpb.CalculatorService_ComputeAverageServer) error {
-	fmt.Printf("ComputeAverage func was incoked with a client streaming req\n")
+	fmt.Printf("ComputeAverage func was invoked with a client streaming req\n")
 	//the returned value of req.GetNumber() is int32, therefore setting avenum int32 for now and setting float64 later inside of if(err == io.EOF)
 	var ave_num int32
 	var count float64
@@ -56,18 +56,43 @@ func (*server) ComputeAverage(stream calculatorpb.CalculatorService_ComputeAvera
 		req, err := stream.Recv()
 		if err == io.EOF {
 			// we have finished reading the client stream
-
 			return stream.SendAndClose(&calculatorpb.ComputeAverageResponse{
 				AveNum: float64(ave_num) / count,
 			})
 		}
 		if err != nil {
-			log.Fatal("Error while reading client stream: %v", err)
+			log.Fatal("Error while reading client stream: %v\n", err)
 		}
 
 		// Normal Process starts here
 		count++
 		ave_num += req.GetNumber()
+	}
+}
+
+func (*server) FindMaximum(stream calculatorpb.CalculatorService_FindMaximumServer) error {
+	fmt.Printf("FindMaximum func was invoked with a BiDi streaming req\n")
+	var max int32
+	for {
+		req, err := stream.Recv()
+		if err == io.EOF {
+			return nil
+		}
+		if err != nil {
+			log.Fatalf("Error while reading client stream: %v\n", err)
+			return err
+		}
+		num := req.GetNumber()
+		if num > max {
+			max = num
+			sendErr := stream.Send(&calculatorpb.FindMaximumResponse{
+				CurrentMaxNum: max,
+			})
+			if sendErr != nil {
+				log.Fatal("Error while sending maximum num data to client: %v\n", sendErr)
+				return sendErr
+			}
+		}
 	}
 }
 
