@@ -1,15 +1,18 @@
 /*
-In this exercise, your goal is to implement a ComputeAverage RPC Client Streaming API in a CalculatorService:
+In this exercise, your goal is to implement a FindMaximum RPC Bi-Directional Streaming API in a CalculatorService:
 
-The function takes a stream of Request message that has one integer, and returns a Response with a double that represents the computed average
+The function takes a stream of Request message that has
+one integer, and returns a stream of Responses that
+represent the current maximum between all these integers
+
 Remember to first implement the service definition in a .proto file, alongside the RPC messages
 Implement the Server code first
 Test the server code by implementing the Client
 Example:
 
-The client will send a stream of number (1,2,3,4) and the server will respond with (2.5), because (1+2+3+4)/4 = 2.5
+The client will send a stream of number (1,5,3,6,2,20) and the server will respond with a stream of (1,5,6,20)
 
-Good luck!
+
 */
 
 syntax = "proto3";
@@ -45,6 +48,14 @@ message ComputeAverageResponse {
   double ave_num = 1;
 }
 
+message FindMaximumRequest {
+  int32 number = 1;
+}
+
+message FindMaximumResponse {
+  int32 current_max_num = 1;
+}
+
 service CalculatorService {
   // Unary
   rpc Calculate (CalculateRequest) returns (CalculateResponse);
@@ -54,4 +65,7 @@ service CalculatorService {
 
   // Client Streaming
   rpc ComputeAverage(stream ComputeAverageRequest) returns (ComputeAverageResponse) {};
+
+  // BiDi Streaming
+  rpc FindMaximum(stream FindMaximumRequest) returns (stream FindMaximumResponse) {};
 }
